@@ -79,3 +79,4 @@ target/
 */_version.py
 sample_data/
 .vscode
+uv.lock
