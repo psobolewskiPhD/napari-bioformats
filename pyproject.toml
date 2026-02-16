@@ -1,0 +1,142 @@
+# https://peps.python.org/pep-0517/
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+# https://hatch.pypa.io/latest/config/metadata/
+[tool.hatch.version]
+source = "vcs"
+
+# https://hatch.pypa.io/latest/config/build/#build-targets
+[tool.hatch.build.targets.sdist]
+exclude = ["typings", ".autoenv.zsh", "codecov.yml", "CLAUDE.md"]
+
+# https://peps.python.org/pep-0621/
+[project]
+name = "napari-bioformats"
+dynamic = ["version"]
+description = "napari bfffile plugin"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-2.0-or-later"
+license-files = ["LICENSE/*"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+dependencies = ["napari>=0.5.0", "bffile>=0.0.1rc1"]
+
+[project.urls]
+homepage = "https://github.com/tlambert03/napari-bioformats"
+repository = "https://github.com/tlambert03/napari-bioformats"
+
+[project.entry-points."napari.manifest"]
+napari_bioformats = "napari_bioformats:napari.yaml"
+
+[dependency-groups]
+test = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "requests>=2.32.3",
+    "napari[pyqt6]>=0.5.0",
+]
+dev = [
+    { include-group = "test" },
+    "diff-cover>=10.2.0",
+    "ipython>=8.18.1",
+    "pdbpp>=0.11.6 ; sys_platform != 'win32'",
+    "prek>=0.2.19",
+    "pyright>=1.1.408",
+    "pytest-xdist>=3.8.0",
+    "rich>=14.0.0",
+    "ruff>=0.11.6",
+]
+
+[tool.uv.sources]
+napari-bioformats = { workspace = true }
+
+# https://docs.astral.sh/ruff
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+src = ["src"]
+exclude = ["typings"]
+fix = true
+unsafe-fixes = true
+
+# https://docs.astral.sh/ruff/rules
+[tool.ruff.lint]
+pydocstyle = { convention = "numpy" }
+select = [
+    "E",    # style errors
+    "W",    # style warnings
+    "F",    # flakes
+    "D417", # Missing argument descriptions in Docstrings
+    "I",    # isort
+    "UP",   # pyupgrade
+    "C4",   # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "A001", # flake8-builtins
+    "RUF",  # ruff-specific rules
+    "TC",   # flake8-type-checking
+    "TID",  # flake8-tidy-imports
+]
+ignore = [
+    "D401", # First line should be in imperative mood (remove to opt in)
+    "E731", # Do not assign a lambda expression, use a def
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["D", "S"]
+
+# https://docs.astral.sh/ruff/formatter/
+[tool.ruff.format]
+docstring-code-format = true
+skip-magic-trailing-comma = false # default is false
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.10"
+enableExperimentalFeatures = true
+verboseOutput = true
+venv = ".venv"
+reportMissingModuleSource = "none"
+
+# https://docs.pytest.org/
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+filterwarnings = [
+    "error",
+    "ignore:Failing to pass a value to the 'type_params' parameter",
+    "ignore:Failed to retrieve OME XML:RuntimeWarning",
+]
+
+# https://coverage.readthedocs.io/
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "@overload",
+    "except ImportError",
+    "\\.\\.\\.",
+    "raise NotImplementedError()",
+    "pass",
+]
+
+[tool.coverage.run]
+source = ["napari_bioformats"]
+
+[tool.check-manifest]
+ignore = [".pre-commit-config.yaml", ".ruff_cache/**/*", "tests/**/*"]
+
+[tool.typos.default]
+extend-ignore-identifiers-re = ["(?i)nd2?.*", "(?i)ome", "AIMD", "ot"]
