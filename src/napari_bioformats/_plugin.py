@@ -32,17 +32,18 @@ def _reader_function(path: PathOrPaths) -> list[LayerData]:
 
     bf = BioFile(path).open()
     fname = os.path.split(path)[-1].rsplit(".", 1)[0]
-    options = []
     if bf.series_count() == 1:
         indices = [0]
     else:
         from ._series_selector import SeriesInfo, get_series
 
-        for series in bf:
-            thumb = get_thumbnail(bf, series.index)
-            thumb = _to_uint8(thumb)
-            label = f"Series {series.index}: {fname}: {series.shape}"
-            options.append(SeriesInfo(label=label, thumbnail=thumb))
+        options = [
+            SeriesInfo(
+                label=f"Series {series.index}: {fname}: {series.shape}",
+                thumbnail=_to_uint8(series.get_thumbnail()),
+            )
+            for series in bf
+        ]
         indices = get_series(options)
 
     if not indices:
@@ -88,43 +89,6 @@ def _reader_function(path: PathOrPaths) -> list[LayerData]:
 
         layers.append((data, kwargs, "image"))
     return layers
-
-
-# upstream this
-def get_thumbnail(self, series: int = 0) -> np.ndarray:
-    """Get thumbnail image for specified series.
-
-    Returns a downsampled version of the first plane (t=0, c=0, z=0) from
-    the specified series, scaled to fit within 128x128 pixels while
-    maintaining aspect ratio.
-
-    """
-    reader = self._ensure_java_reader()
-    meta = self.core_metadata(series=series)
-
-    with self._lock:
-        reader.setSeries(series)
-        # Get thumbnail bytes for first plane (t=0, c=0, z=0)
-        java_buffer = reader.openThumbBytes(0)
-
-        # Convert to numpy array using metadata dtype
-        thumb = np.frombuffer(memoryview(java_buffer), meta.dtype)  # type: ignore
-
-        # Get thumbnail dimensions from reader (computed dynamically)
-        thumb_height = reader.getThumbSizeY()
-        thumb_width = reader.getThumbSizeX()
-
-        # Reshape based on RGB channels and interleaving
-        if meta.shape.rgb > 1:
-            if meta.is_interleaved:
-                thumb.shape = (thumb_height, thumb_width, meta.shape.rgb)
-            else:
-                thumb.shape = (meta.shape.rgb, thumb_height, thumb_width)
-                thumb = np.transpose(thumb, (1, 2, 0))
-        else:
-            thumb.shape = (thumb_height, thumb_width)
-
-        return thumb
 
 
 def _to_uint8(img: np.ndarray) -> np.ndarray:

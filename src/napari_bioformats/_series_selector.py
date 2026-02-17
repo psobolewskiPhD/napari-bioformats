@@ -7,11 +7,13 @@ from typing import TYPE_CHECKING
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QImage, QPixmap
 from qtpy.QtWidgets import (
+    QApplication,
     QCheckBox,
     QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMainWindow,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -94,7 +96,7 @@ class SeriesOptionsDialog(QDialog):
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Bio-Formats Series Options")
-        self.setMinimumWidth(620)
+        self.setMinimumWidth(400)
 
         outer = QVBoxLayout(self)
 
@@ -105,7 +107,7 @@ class SeriesOptionsDialog(QDialog):
         container = QWidget()
         self._rows_layout = QVBoxLayout(container)
         self._rows_layout.setContentsMargins(8, 8, 8, 8)
-        self._rows_layout.setSpacing(12)
+        self._rows_layout.setSpacing(6)
 
         self._rows: list[SeriesRow] = []
         for info in series:
@@ -155,8 +157,16 @@ class SeriesOptionsDialog(QDialog):
 
 def get_series(options: list[SeriesInfo]) -> list[int]:
     """Popup a dialog to ask the user which series they want to open"""
+    # if not in a qapp, just return the first series
+    if not (QApplication.instance()):
+        return [0]
 
-    dialog = SeriesOptionsDialog(options)
+    # try to find the first MainWindow instance to parent the dialog to:
+    parent = next(
+        (w for w in QApplication.topLevelWidgets() if isinstance(w, QMainWindow)), None
+    )
+
+    dialog = SeriesOptionsDialog(options, parent=parent)
     if dialog.exec() == QDialog.DialogCode.Accepted:
         return dialog.selected_indices()
     return []
