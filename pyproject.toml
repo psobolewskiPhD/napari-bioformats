@@ -31,7 +31,10 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
-dependencies = ["napari>=0.5.0", "bffile>=0.0.1rc2"]
+dependencies = [
+    "napari>=0.5.0",
+    "bffile>=0.0.1rc4",
+]
 
 [project.urls]
 homepage = "https://github.com/tlambert03/napari-bioformats"
@@ -61,6 +64,7 @@ dev = [
 
 [tool.uv.sources]
 napari-bioformats = { workspace = true }
+bffile = { path = "../bffile", editable = true }
 
 # https://docs.astral.sh/ruff
 [tool.ruff]

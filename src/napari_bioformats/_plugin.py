@@ -4,7 +4,6 @@ import os
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
-import numpy as np
 from bffile import BioFile
 
 if TYPE_CHECKING:
@@ -35,16 +34,11 @@ def _reader_function(path: PathOrPaths) -> list[LayerData]:
     if bf.series_count() == 1:
         indices = [0]
     else:
-        from ._series_selector import SeriesInfo, get_series
+        # If there are more than one series,
+        # pop up a selector dialog to choose which one(s) to load.
+        from ._series_selector import get_series
 
-        options = [
-            SeriesInfo(
-                label=f"Series {series.index}: {fname}: {series.shape}",
-                thumbnail=_to_uint8(series.get_thumbnail()),
-            )
-            for series in bf
-        ]
-        indices = get_series(options)
+        indices = get_series(bf)
 
     if not indices:
         return [(None,)]
@@ -89,12 +83,3 @@ def _reader_function(path: PathOrPaths) -> list[LayerData]:
 
         layers.append((data, kwargs, "image"))
     return layers
-
-
-def _to_uint8(img: np.ndarray) -> np.ndarray:
-    if img.dtype == np.uint8:
-        return img
-    mn, mx = np.percentile(img, (1, 99))  # robust min/max for contrast stretching
-    if mn == mx:
-        return np.zeros_like(img, dtype=np.uint8)
-    return ((img.astype(np.float64) - mn) / (mx - mn) * 255).astype(np.uint8)
