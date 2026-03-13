@@ -15,7 +15,6 @@ description = "napari bfffile plugin"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-2.0-or-later"
-license-files = ["LICENSE/*"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
@@ -28,14 +27,11 @@ classifiers = [
     "Framework :: napari",
     "Typing :: Typed",
 ]
-dependencies = [
-    "napari>=0.5.0",
-    "bffile>=0.0.1rc4",
-]
+dependencies = ["napari>=0.5.0", "bffile>=0.1.0"]
 
 [project.urls]
-homepage = "https://github.com/tlambert03/napari-bioformats"
-repository = "https://github.com/tlambert03/napari-bioformats"
+homepage = "https://github.com/imaging-formats/napari-bioformats"
+repository = "https://github.com/imaging-formats/napari-bioformats"
 
 [project.entry-points."napari.manifest"]
 napari_bioformats = "napari_bioformats:napari.yaml"
