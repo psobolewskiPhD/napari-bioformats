@@ -8,3 +8,16 @@
 [![codecov](https://codecov.io/gh/tlambert03/napari-bioformats/branch/master/graph/badge.svg)](https://codecov.io/gh/tlambert03/napari-bioformats)
 
 Bioformats plugin for napari using [bffile](https://github.com/imaging-formats/bffile)
+
+## Releasing
+
+Anyone with write access can create a release in two ways:
+
+1. **Locally:**
+
+   checkout the version you want to release, then run:
+
+   ```bash
+   git tag -a vX.Y.Z -m vX.Y.Z
+   git push upstream --follow-tags
+   ```
